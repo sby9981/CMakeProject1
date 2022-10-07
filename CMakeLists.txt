@@ -40,7 +40,7 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
 
 else()
 	link_directories("${IGES_BUILD_DIR}/x64-build/src")
-	target_include_directories(hello PUBLIC "${IGES_INSTALL_DIR}/x64-build/include/iges")
+	target_include_directories(hello PUBLIC "${IGES_INSTALL_DIR}/x64-debug/include/iges")
 	target_link_libraries(hello PUBLIC iges_static)
 endif()
 # TODO: Add tests and install targets if needed.

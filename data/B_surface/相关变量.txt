@@ -1,0 +1,10 @@
+    vector<Matrix> ctr_pnts_srf;    // 记录蒙皮的控制点，ctr_pnts_srf[i](j,:)表示控制点P_{ij}的三个坐标值
+
+    int u_num, v_num;               // 参数(控制点)数量为u_num * v_num
+    int u_m, v_m;                   // m+1=节点向量长度
+    int u_p, v_p;                   // p为B样条阶数
+
+    vector<double> s_U;             // 蒙皮U方向节点向量
+    vector<double> s_V;             // 蒙皮V方向节点向量，即翼型截线的节点向量
+    vector<double> data_para_U;     // 蒙皮U方向参数值
+    vector<double> data_pata_V;     // 蒙皮V方向参数值，即翼型截线的参数值
