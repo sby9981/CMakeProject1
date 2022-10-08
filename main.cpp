@@ -45,6 +45,16 @@ int main()
 
 	model.write(string(IGESDir) + string("1.IGS"));
 
+	vector<double> a(4);
+	double* aa = new double[4];
+	*aa = 0;
+	*(aa + 1) = 1.1;
+	*(aa + 2) = 1.2;
+	*(aa + 3) = 1.3;
+	double aaa[] = { 1, 1.1, 1.2, 1.3 };
+	copy(aa, aa + 4, a.begin());
+
+
 
 
 	cout << "OK" << endl;

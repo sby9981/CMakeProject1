@@ -27,5 +27,6 @@ namespace iges
 			knots_u(_knot_u), knots_v(_knot_v), ctr_pnts(_ctr_pnts)
 		{}
 
+		Nurbs(SISLSurf*);
 	};
 }
