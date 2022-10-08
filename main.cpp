@@ -37,10 +37,11 @@ int main()
 	}
 	cpt_file.close();
 
-	iges::Nurbs surf = iges::Nurbs(3, 3, 35, 11, knots_u, knots_v, control_pts);
+	iges::Nurbs b = iges::Nurbs(3, 3, 35, 11, knots_u, knots_v, control_pts);
 	iges::IGESNurbs model = iges::IGESNurbs();
-	model.set_surface(surf, 0, 1, 0, 1);
+	model.set_surface(b, 0, 1, 0, 1);
 	model.write(string(IGESDir) + string("1.IGS"));
+
 
 
 	cout << "OK" << endl;

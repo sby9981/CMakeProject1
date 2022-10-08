@@ -17,20 +17,21 @@ namespace iges
 
 	IGESNurbs::IGESNurbs()
 	{
-		color			= make_unique<DLL_IGES_ENTITY_314>(DLL_IGES_ENTITY_314(model, true));
+		//color			= make_unique<DLL_IGES_ENTITY_314>(DLL_IGES_ENTITY_314(model, true));
 		surface			= make_unique<DLL_IGES_ENTITY_128>(DLL_IGES_ENTITY_128(model, true));
 		//space_bound		= make_unique<DLL_IGES_ENTITY_102>(DLL_IGES_ENTITY_102(model, true));
 		//param_bound		= make_unique<DLL_IGES_ENTITY_102>(DLL_IGES_ENTITY_102(model, true));
 		//surface_bound	= make_unique<DLL_IGES_ENTITY_142>(DLL_IGES_ENTITY_142(model, true));
 		//trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(DLL_IGES_ENTITY_144(model, true));
 
-		color->SetColor(0., 80., 0.);
+		//color->SetColor(0., 80., 0.);
+		set_param_bound(0, 1, 0, 1);
 	}
 
 	void IGESNurbs::set_color(double r, double g, double b)
 	{
 		//range is 0.0 .. 100.0
-		color->SetColor(r, g, b);
+		//color->SetColor(r, g, b);
 	}
 
 	void IGESNurbs::set_param_bound(double u0, double u1, double v0, double v1)

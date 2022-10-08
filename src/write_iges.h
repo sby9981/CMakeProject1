@@ -61,7 +61,7 @@ namespace iges
 		//unique_ptr<Nurbs>	surf;
 
 		DLL_IGES 								model;				// 用于存储
-		unique_ptr < DLL_IGES_ENTITY_314 >		color;
+		//unique_ptr < DLL_IGES_ENTITY_314 >		color;
 		unique_ptr < DLL_IGES_ENTITY_128 >		surface;
 		//CurveLoop								space_loop;
 		//CurveLoop								param_loop;
@@ -71,9 +71,6 @@ namespace iges
 		unique_ptr < DLL_IGES_ENTITY_144 >		trimmed_surface;
 
 		IGESNurbs();
-		//~IGESNurbs() {
-		//	model.Clear();
-		//}
 		void set_color(double, double, double);
 
 		//设置曲面在两个参数方向的参数范围 u0 to u1, v0 to v1
