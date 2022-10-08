@@ -39,7 +39,10 @@ int main()
 
 	iges::Nurbs b = iges::Nurbs(3, 3, 35, 11, knots_u, knots_v, control_pts);
 	iges::IGESNurbs model = iges::IGESNurbs();
-	model.set_surface(b, 0, 1, 0, 1);
+	model.set_param_bound(0, 1, 0, 1);
+	model.set_surface(b);
+	
+
 	model.write(string(IGESDir) + string("1.IGS"));
 
 
