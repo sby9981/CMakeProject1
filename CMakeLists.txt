@@ -8,7 +8,8 @@ project (hello)
 # Add source to this project's executable.
 set(NURBS_DIR "src")
 set(WRITE_IGES 
-		"${NURBS_DIR}/write_iges.h" "${NURBS_DIR}/write_iges.cpp")
+		"${NURBS_DIR}/write_iges.h" "${NURBS_DIR}/write_iges.cpp"
+		"${NURBS_DIR}/sisl_tool.h" "${NURBS_DIR}/sisl_tool.cpp")
 add_executable (hello "CMakeProject1.cpp" "CMakeProject1.h"  "main.cpp" ${WRITE_IGES})
 target_include_directories(hello PUBLIC ${NURBS_DIR})
 
@@ -18,13 +19,14 @@ endif()
 
 # add 3rdParty
 # add sisl  https://github.com/SINTEF-Geometry/SISL.git
-set(SISL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SISL)
+set(SISL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SISL/include")
+set(SISL_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SISL/out/build")
 add_subdirectory(SISL)   
-target_include_directories(hello PUBLIC "${SISL_SOURCE_DIR}/include")
+target_include_directories(hello PUBLIC ${SISL_INCLUDE_DIR})
 if(CMAKE_BUILD_TYPE MATCHES Release)
-	target_link_libraries(hello PUBLIC "${SISL_SOURCE_DIR}/out/build/x64-release/sisl.lib")
+	target_link_libraries(hello PUBLIC "${SISL_BUILD_DIR}/x64-release/sisl.lib")
 else()
-	target_link_libraries(hello PUBLIC "${SISL_SOURCE_DIR}/out/build/x64-debug/sisl.lib")
+	target_link_libraries(hello PUBLIC "${SISL_BUILD_DIR}/x64-debug/sisl.lib")
 endif()
 
 # add libIGES  https://github.com/cbernardo/libIGES.git

@@ -1,10 +1,11 @@
 #pragma once
 #include <iostream>
 #include <cmath>
-#include "api/dll_iges.h"
-#include "api/all_api_entities.h"
 #include <memory>
 #include <vector>
+#include "api/dll_iges.h"
+#include "api/all_api_entities.h"
+#include "sisl_tool.h"
 
 namespace iges 
 {
@@ -25,27 +26,6 @@ namespace iges
 		}
 	};
 
-	struct Nurbs
-	{
-		// 存储nurbs曲面的基本信息
-		int u_p;				//次数
-		int v_p;
-		int u_num;				// u方向控制点数量
-		int v_num;				
-		vector<double> knots_u;	// u方向节点向量
-		vector<double> knots_v;
-		vector<double> ctr_pnts;// 控制点，对每个v，u方向控制点连续排序
-
-		Nurbs() : u_p(0), v_p(0), knots_u(0) {}
-
-		Nurbs(int degree_u, int degree_v, int cpt_u, int cpt_v, 
-			vector<double>& _knot_u, vector<double>& _knot_v, 
-			vector<double>& _ctr_pnts)
-			: u_p(degree_u), v_p(degree_v), u_num(cpt_u), v_num(cpt_v), 
-			knots_u(_knot_u), knots_v(_knot_v), ctr_pnts(_ctr_pnts)
-		{}
-	};
-
 
 	class IGESNurbs
 	{
@@ -64,13 +44,12 @@ namespace iges
 		void set_color(double, double, double);
 
 		//设置曲面在两个参数方向的参数范围 u0 to u1, v0 to v1
-		void set_param_limit(double u0, double u1, double v0, double v1); 
+		void set_param_bound(double u0, double u1, double v0, double v1);
 
 		void set_surface(Nurbs&);
 		void set_surface(int degree_u, int degree_v, int cpt_u, int cpt_v, 
 			vector<double>& _knot_u, vector<double>& _knot_v, vector<double>& _ctr_pnts);
 
-		void set_param_bound(double u0, double u1, double v0, double v1);
 		void set_space_bound();
 
 
