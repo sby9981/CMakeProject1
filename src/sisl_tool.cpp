@@ -1,4 +1,5 @@
 #include "sisl_tool.h"
+#include <iostream>
 
 namespace iges
 {
@@ -15,7 +16,7 @@ namespace iges
 
 		knots.resize(s->ik + s->in);
 		copy(s->et, s->et + knots.size(), knots.begin());
-		
+
 		ctr_pnts.resize(s->in);
 		copy(s->ecoef, s->ecoef + ctr_pnts.size(), ctr_pnts.begin());
 	}
@@ -68,10 +69,31 @@ namespace iges
 		SISLSurf* s1 = NULL, * s2 = NULL;
 		int stat; // >0: warning, =0: ok, <0: error
 		s1711(s0, param_direction, param_val, &s1, &s2, &stat); //divide
+		if (stat < 0) {
+			cerr << "Faild Subdivide surface!" << endl;
+			return;
+		}
 		new_surf1.reset(s1);
 		new_surf2.reset(s2);
 		freeSurf(s0);
 		freeSurf(s1);
 		freeSurf(s2);
 	}
+
+	void pick_constant_param_curve(BSplineSurface& surf, int param_direction,
+		double param_val, BSplineCurve& curve)
+		/*	沿一固定参数值，从曲面上选取一条曲线
+		*	param_direction: 参数方向
+		*					=1：沿u方向分割
+		*					=2：沿v方向分割
+		*/
+	{
+		SISLSurf* s = surf.toSISLSurf();
+		SISLCurve* c = NULL;
+		int stat; // >0: warning, =0: ok, <0: error
+		s1439(s, param_val, param_direction, &c, &stat);
+		curve.reset(c);
+		freeCurve(c);
+	}
+
 }

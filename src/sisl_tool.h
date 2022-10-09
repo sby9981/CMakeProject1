@@ -4,6 +4,9 @@
 #include <vector>
 
 #include <sisl.h>
+/* SISL是一个nurbs库
+*  sisl_tool封装了其中部分功能
+*/
 
 namespace iges
 {
@@ -59,4 +62,9 @@ namespace iges
 	// Subdivide a surface along a given internal parameter line
 	void subdivide_along_param_line(BSplineSurface& surf, int param_direction,
 		double param_val, BSplineSurface& new_surf1, BSplineSurface& new_surf2);
+
+	// Make a constant parameter curve along a given parameter direction in a surface.
+	void pick_constant_param_curve(BSplineSurface& surf, int param_direction,
+		double param_val, BSplineCurve& curve);
+
 }
