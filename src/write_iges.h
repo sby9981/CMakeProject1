@@ -3,28 +3,29 @@
 #include <cmath>
 #include <memory>
 #include <vector>
-#include "api/dll_iges.h"
-#include "api/all_api_entities.h"
+
+#include <api/dll_iges.h>
+#include <api/all_api_entities.h>
 #include "sisl_tool.h"
 
-namespace iges 
+namespace iges
 {
 	using namespace std;
-	struct Point3
-	{
-		double x;
-		double y;
-		double z;
+	//struct Point3
+	//{
+	//	double x;
+	//	double y;
+	//	double z;
 
-		Point3(double _x, double _y, double _z)
-			: x(_x), y(_y), z(_z)	
-		{}
+	//	Point3(double _x, double _y, double _z)
+	//		: x(_x), y(_y), z(_z)
+	//	{}
 
-		friend istream& operator>>(istream& in, Point3& p) {
-			in >> p.x >> p.y >> p.z;
-			return in;
-		}
-	};
+	//	friend istream& operator>>(istream& in, Point3& p) {
+	//		in >> p.x >> p.y >> p.z;
+	//		return in;
+	//	}
+	//};
 
 
 	class IGESNurbs
@@ -46,8 +47,8 @@ namespace iges
 		//设置曲面在两个参数方向的参数范围 u0 to u1, v0 to v1
 		void set_param_bound(double u0, double u1, double v0, double v1);
 
-		void set_surface(Nurbs&);
-		void set_surface(int degree_u, int degree_v, int cpt_u, int cpt_v, 
+		void set_surface(BSplineSurface&);
+		void set_surface(int degree_u, int degree_v, int cpt_u, int cpt_v,
 			vector<double>& _knot_u, vector<double>& _knot_v, vector<double>& _ctr_pnts);
 
 		void set_space_bound();

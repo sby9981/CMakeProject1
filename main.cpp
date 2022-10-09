@@ -24,8 +24,9 @@ int main()
 		knots_u.push_back(temp_read);
 	}
 	knot_file.close();
-	vector<double> knots_v = { 0, 0, 0, 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 1, 1, 1 };
-	ofstream out_file;
+	vector<double> a1;
+	vector<double> knots_v =
+	{ 0, 0, 0, 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 1, 1, 1 };
 
 	// read control points
 	vector<double> control_pts;
@@ -37,24 +38,16 @@ int main()
 	}
 	cpt_file.close();
 
-	iges::Nurbs b = iges::Nurbs(3, 3, 35, 11, knots_u, knots_v, control_pts);
+	iges::BSplineSurface b_surface =
+		iges::BSplineSurface(3, 3, 35, 11, knots_u, knots_v, control_pts);
+	iges::BSplineSurface b_surface1, b_surface2;
+	iges::subdivide_along_param_line(b_surface, 1, 0.5, b_surface1, b_surface2);
 	iges::IGESNurbs model = iges::IGESNurbs();
-	model.set_param_bound(0, 1, 0, 1);
-	model.set_surface(b);
-	
+	model.set_param_bound(0, 0.5, 0, 1);
+	model.set_surface(b_surface1);
+
 
 	model.write(string(IGESDir) + string("1.IGS"));
-
-	vector<double> a(4);
-	double* aa = new double[4];
-	*aa = 0;
-	*(aa + 1) = 1.1;
-	*(aa + 2) = 1.2;
-	*(aa + 3) = 1.3;
-	double aaa[] = { 1, 1.1, 1.2, 1.3 };
-	copy(aa, aa + 4, a.begin());
-
-
 
 
 	cout << "OK" << endl;

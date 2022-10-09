@@ -7,12 +7,12 @@ namespace iges
 
 	IGESNurbs::IGESNurbs()
 	{
-		//color			= make_unique<DLL_IGES_ENTITY_314>(DLL_IGES_ENTITY_314(model, true));
+		//color			= make_unique<DLL_IGES_ENTITY_314>(model, true);
 		surface = make_unique<DLL_IGES_ENTITY_128>(model, true);
-		//space_bound		= make_unique<DLL_IGES_ENTITY_102>(DLL_IGES_ENTITY_102(model, true));
+		//space_bound		= make_unique<DLL_IGES_ENTITY_102>(model, true);
 		param_bound = make_unique<DLL_IGES_ENTITY_102>(model, true);
-		//surface_bound	= make_unique<DLL_IGES_ENTITY_142>(DLL_IGES_ENTITY_142(model, true));
-		//trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(DLL_IGES_ENTITY_144(model, true));
+		//surface_bound	= make_unique<DLL_IGES_ENTITY_142>(model, true);
+		//trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(model, true);
 
 		//color->SetColor(0., 80., 0.);
 	}
@@ -42,14 +42,14 @@ namespace iges
 		}
 	}
 
-	void IGESNurbs::set_surface(Nurbs& b)
+	void IGESNurbs::set_surface(BSplineSurface& b)
 	{
 		// DLL_IGES_ENTITY_128输入参数为阶数 order=degree + 1
 		// u0, u1, v0, v1 为参数范围，都在0-1范围内
 		if (!param_limit.ifValid()) {
 			cerr << "Wrong parameter feild! Use set_param_bound first!" << endl;
 		}
-		surface->SetNURBSData(b.u_num, b.v_num, b.u_p + 1, b.v_p + 1, b.knots_u.data(),
+		surface->SetNURBSData(b.u_num, b.v_num, b.degree_u + 1, b.degree_v + 1, b.knots_u.data(),
 			b.knots_v.data(), b.ctr_pnts.data(), false, false, false, 
 			param_limit.u0, param_limit.u1, param_limit.v0, param_limit.v1);
 	}
