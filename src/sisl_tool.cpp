@@ -68,7 +68,7 @@ namespace iges
 		SISLSurf* s0 = surf.toSISLSurf();
 		SISLSurf* s1 = NULL, * s2 = NULL;
 		int stat; // >0: warning, =0: ok, <0: error
-		s1711(s0, param_direction, param_val, &s1, &s2, &stat); //divide
+		s1711(s0, param_direction, param_val, &s1, &s2, &stat); //function in SISL
 		if (stat < 0) {
 			cerr << "Faild Subdivide surface!" << endl;
 			return;
@@ -91,7 +91,7 @@ namespace iges
 		SISLSurf* s = surf.toSISLSurf();
 		SISLCurve* c = NULL;
 		int stat; // >0: warning, =0: ok, <0: error
-		s1439(s, param_val, param_direction, &c, &stat);
+		s1439(s, param_val, param_direction, &c, &stat); // function in SISL
 		curve.reset(c);
 		freeCurve(c);
 	}
