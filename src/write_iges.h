@@ -31,19 +31,21 @@ namespace iges
 	class IGESNurbs
 	{
 	public:
-		unique_ptr < BSplineSurface >			surface;
+		BSplineSurface surface;
 
 		IGESNurbs();
+		IGESNurbs(BSplineSurface&);
+
 		void set_color(double, double, double);
 
 		//设置曲面在两个参数方向的参数范围 u0 to u1, v0 to v1
 		void set_param_bound(double u0, double u1, double v0, double v1);
 
 		void set_surface(BSplineSurface&);
-		void set_surface(int degree_u, int degree_v, int cpt_u, int cpt_v,
-			vector<double>& knot_u, vector<double>& knot_v, vector<double>& ctr_pnts);
+		void set_surface(int degree_u, int degree_v, int u_num, int v_num,
+			vector<double>& knots_u, vector<double>& knots_v, vector<double>& ctr_pnts);
 
-		void set_space_bound();
+		void set_space_bound(); //选取曲面的4条边界曲线
 
 
 		void write(const char*);
@@ -51,8 +53,8 @@ namespace iges
 
 	private:
 		// libIGES中的各种类型，用于转存IGS文件
-		DLL_IGES 								_model;				
-		unique_ptr < DLL_IGES_ENTITY_128 >		_surface;
+		DLL_IGES 								_model;
+		unique_ptr < DLL_IGES_ENTITY_128 >		_surf;
 		unique_ptr < DLL_IGES_ENTITY_102 >		_space_bound;
 		unique_ptr < DLL_IGES_ENTITY_102 >		_param_bound;
 		unique_ptr < DLL_IGES_ENTITY_142 >		_surface_bound;

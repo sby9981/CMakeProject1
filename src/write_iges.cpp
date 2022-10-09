@@ -7,11 +7,17 @@ namespace iges
 
 	IGESNurbs::IGESNurbs()
 	{
-		_surface = make_unique<DLL_IGES_ENTITY_128>(_model, true);
+		_surf = make_unique<DLL_IGES_ENTITY_128>(_model, true);
 		//_space_bound	= make_unique<DLL_IGES_ENTITY_102>(_model, true);
 		_param_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
 		//_surface_bound	= make_unique<DLL_IGES_ENTITY_142>(_model, true);
 		//_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(_model, true);
+	}
+
+	IGESNurbs::IGESNurbs(BSplineSurface& b)
+	{
+		IGESNurbs();
+		surface = b;
 	}
 
 	void IGESNurbs::set_color(double r, double g, double b)
@@ -40,30 +46,53 @@ namespace iges
 
 	void IGESNurbs::set_surface(BSplineSurface& b)
 	{
+		surface = b;
+
 		// DLL_IGES_ENTITY_128输入参数为阶数 order=degree + 1
 		// u0, u1, v0, v1 为参数范围，都在0-1范围内
 		if (!_param_limit.ifValid()) {
 			cerr << "Wrong parameter feild! Use set_param_bound first!" << endl;
 		}
-		_surface->SetNURBSData(b.u_num, b.v_num, b.degree_u + 1, b.degree_v + 1,
-			b.knots_u.data(), b.knots_v.data(), b.ctr_pnts.data(), false, false, false, 
+		// for IGES
+		_surf->SetNURBSData(b.u_num, b.v_num, b.degree_u + 1, b.degree_v + 1,
+			b.knots_u.data(), b.knots_v.data(), b.ctr_pnts.data(), false, false, false,
 			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1);
 	}
 
-	void IGESNurbs::set_surface(int degree_u, int degree_v, int cpt_u, int cpt_v,
-		vector<double>& knot_u, vector<double>& knot_v, vector<double>& ctr_pnts)
+	void IGESNurbs::set_surface(int degree_u, int degree_v, int u_num, int v_num,
+		vector<double>& knots_u, vector<double>& knots_v, vector<double>& ctr_pnts)
 	{
+		surface.reset(degree_u, degree_v, u_num, v_num, knots_u, knots_v, ctr_pnts);
+
 		if (!_param_limit.ifValid()) {
 			cerr << "Wrong parameter feild! Use set_param_bound first!" << endl;
 		}
-		_surface->SetNURBSData(cpt_u, cpt_v, degree_u + 1, degree_v + 1,
-			knot_u.data(), knot_u.data(), ctr_pnts.data(), false, false, false,
+		_surf->SetNURBSData(u_num, v_num, degree_u + 1, degree_v + 1,
+			knots_u.data(), knots_v.data(), ctr_pnts.data(), false, false, false,
 			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1);
 	}
 
 	void IGESNurbs::set_space_bound()
 	{
-		DLL_IGES_ENTITY_126 line(_model, true);
+		BSplineCurve curve;
+		int param_direction[] = { 1, 2, 1, 2 };
+		double param_val[] = { _param_limit.u0, _param_limit.v1,
+			_param_limit.u1, _param_limit.v0 };
+		double start = 0., end = 1.; //曲线起止的参数位置
+
+		for (int i = 0; i < 4; i++) {
+			pick_constant_param_curve(surface, param_direction[i], param_val[i], curve);
+			DLL_IGES_ENTITY_126 boundary(_model, true);
+			if (param_direction[i] == 1) {
+				boundary.SetNURBSData(curve.num, curve.degree + 1, curve.knots.data(),
+					curve.ctr_pnts.data(), false, _param_limit.v0, _param_limit.v1);
+			}
+			else {
+				boundary.SetNURBSData(curve.num, curve.degree + 1, curve.knots.data(),
+					curve.ctr_pnts.data(), false, _param_limit.u0, _param_limit.u1);
+			}
+			_space_bound->AddSegment(boundary);
+		}
 	}
 
 

@@ -24,11 +24,9 @@ int main()
 		knots_u.push_back(temp_read);
 	}
 	knot_file.close();
-	vector<double> a1;
-	vector<double> knots_v =
+	vector<double> knots_v = 
 	{ 0, 0, 0, 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 1, 1, 1 };
 
-	// read control points
 	vector<double> control_pts;
 	ifstream cpt_file;
 	cpt_file.open(string(BSurfaceDir) + string("SurfCnt.txt"), std::ios::in);
@@ -45,6 +43,7 @@ int main()
 	iges::IGESNurbs model = iges::IGESNurbs();
 	model.set_param_bound(0, 0.5, 0, 1);
 	model.set_surface(b_surface1);
+	model.set_space_bound();
 
 
 	model.write(string(IGESDir) + string("1.IGS"));

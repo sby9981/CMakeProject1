@@ -47,6 +47,32 @@ namespace iges
 		copy(s->ecoef, s->ecoef + ctr_pnts.size(), ctr_pnts.begin());
 	}
 
+	void BSplineSurface::reset(int degree_u, int degree_v, int u_num, int v_num,
+		vector<double>& knots_u, vector<double>& knots_v, vector<double>& ctr_pnts)
+	{
+		this->degree_u = degree_u;
+		this->degree_v = degree_v;
+		this->u_num = u_num;
+		this->v_num = v_num;
+
+		this->knots_u = knots_u;
+		this->knots_v = knots_v;
+		this->ctr_pnts = ctr_pnts;
+	}
+
+	BSplineSurface& BSplineSurface::operator=(const BSplineSurface& other)
+	{
+		degree_u = other.degree_u;
+		degree_v = other.degree_v;
+		u_num = other.u_num;
+		v_num = other.v_num;
+
+		knots_u = other.knots_u;
+		knots_v = other.knots_v;
+		ctr_pnts = other.ctr_pnts;
+		return *this;
+	}
+
 	SISLSurf* BSplineSurface::toSISLSurf()
 	{
 		return newSurf(u_num, v_num, degree_u + 1, degree_v + 1, knots_u.data(),
@@ -54,16 +80,16 @@ namespace iges
 		//need freeSurf(SISLSurf*) later
 	}
 
+	/*	将曲面沿一条参数线分割
+	*	surf: 待分割曲面
+	*	param_direction: 分割的参数方向
+	*					=1：沿u方向分割
+	*					=2：沿v方向分割
+	*	param_val：参数值
+	*	new_surf1， new_sruf2: 得到的子曲面
+	*/
 	void subdivide_along_param_line(BSplineSurface& surf, int param_direction,
 		double param_val, BSplineSurface& new_surf1, BSplineSurface& new_surf2)
-		/*	将曲面沿一条参数线分割
-		*	surf: 待分割曲面
-		*	param_direction: 分割的参数方向
-		*					=1：沿u方向分割
-		*					=2：沿v方向分割
-		*	param_val：参数值
-		*	new_surf1， new_sruf2: 得到的子曲面
-		*/
 	{
 		SISLSurf* s0 = surf.toSISLSurf();
 		SISLSurf* s1 = NULL, * s2 = NULL;
@@ -80,13 +106,13 @@ namespace iges
 		freeSurf(s2);
 	}
 
+	/*	沿一固定参数值，从曲面上选取一条曲线
+	*	param_direction: 参数方向
+	*					=1：沿u方向分割
+	*					=2：沿v方向分割
+	*/
 	void pick_constant_param_curve(BSplineSurface& surf, int param_direction,
 		double param_val, BSplineCurve& curve)
-		/*	沿一固定参数值，从曲面上选取一条曲线
-		*	param_direction: 参数方向
-		*					=1：沿u方向分割
-		*					=2：沿v方向分割
-		*/
 	{
 		SISLSurf* s = surf.toSISLSurf();
 		SISLCurve* c = NULL;
@@ -95,5 +121,4 @@ namespace iges
 		curve.reset(c);
 		freeCurve(c);
 	}
-
 }

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <memory>
 #include <vector>
+//#include <cstdlib>
 
 #include <sisl.h>
 /* SISL是一个nurbs库
@@ -46,17 +47,30 @@ namespace iges
 		BSplineSurface() : degree_u(0), degree_v(0), knots_u(0), u_num(0), v_num(0)
 		{}
 
-		BSplineSurface(int degree_u, int degree_v, int cpt_u, int cpt_v,
-			vector<double>& knot_u, vector<double>& knot_v,
-			vector<double>& ctr_pnts)
-			: degree_u(degree_u), degree_v(degree_v), u_num(cpt_u), v_num(cpt_v),
-			knots_u(knot_u), knots_v(knot_v), ctr_pnts(ctr_pnts)
+		BSplineSurface(BSplineSurface& b)
+			: degree_u(b.degree_u), degree_v(b.degree_v), u_num(b.u_num), 
+			v_num(b.u_num), knots_u(b.knots_u), knots_v(b.knots_v), ctr_pnts(b.ctr_pnts)
+		{}
+
+		BSplineSurface(int degree_u, int degree_v, int u_num, int v_num,
+			vector<double>& knots_u, vector<double>& knots_v, vector<double>& ctr_pnts)
+			: degree_u(degree_u), degree_v(degree_v), u_num(u_num), v_num(v_num),
+			knots_u(knots_u), knots_v(knots_v), ctr_pnts(ctr_pnts)
 			// 此处vector为深拷贝
 		{}
 
 		BSplineSurface(SISLSurf*);
-		void reset(SISLSurf*);
+
+		void reset(SISLSurf*);   //build BSplineSurface from SISL surface
+
+		void reset(int degree_u, int degree_v, int u_num, int v_num,
+			vector<double>& knots_u, vector<double>& knots_v, vector<double>& ctr_pnts);
+
+		BSplineSurface& operator=(const BSplineSurface& other);
+
+
 		SISLSurf* toSISLSurf();
+
 	};
 
 	// Subdivide a surface along a given internal parameter line
