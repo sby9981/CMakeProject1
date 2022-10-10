@@ -10,8 +10,8 @@ namespace iges
 		_surf = make_unique<DLL_IGES_ENTITY_128>(_model, true);
 		_space_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
 		_param_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
-		_surface_bound	= make_unique<DLL_IGES_ENTITY_142>(_model, true);
-		//_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(_model, true);
+		_surface_bound = make_unique<DLL_IGES_ENTITY_142>(_model, true);
+		_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(_model, true);
 	}
 
 	IGESNurbs::IGESNurbs(BSplineSurface& b)
@@ -97,16 +97,34 @@ namespace iges
 
 	void IGESNurbs::_define_surf_boundary()
 	{
+		_surface_bound->SetCurveCreationFlag(CURVE_CREATE_PROJECTION);
+		_surface_bound->SetSurface(*_surf);
+		_surface_bound->SetParameterSpaceBound(*_param_bound);
+		_surface_bound->SetModelSpaceBound(*_space_bound);
+		_surface_bound->SetCurvePreference(BOUND_PREF_PARAMSPACE);
+	}
+
+	void IGESNurbs::_create_TPS()
+	{
+		DLL_IGES_ENTITY_314 color(_model, true);
+		color.SetColor(_color.r, _color.g, _color.b);
+		_trimmed_surface->SetSurface(*_surf);
+		_trimmed_surface->SetBoundCurve(*_surface_bound);
+		_trimmed_surface->SetColor(color);
 	}
 
 	//write model to iges file
 	void IGESNurbs::write(const char* filename)
 	{
+		_define_surf_boundary();
+		_create_TPS();
 		_model.Write(filename, true);
 	}
 
 	void IGESNurbs::write(const string& filename)
 	{
+		_define_surf_boundary();
+		_create_TPS();
 		_model.Write(filename.c_str(), true);
 	}
 
