@@ -75,6 +75,12 @@ namespace iges
 			explicit M_Color() :r(0), g(0), b(0) {}
 			void set(double r, double g, double b);
 		}_color;
+
+		// use the compound curve to define a surface boundary in model space 
+		void _define_surf_boundary();
+
+		// create the Trimmed Parametric Surface (TPS
+		void _create_TPS();
 	};
 
 }

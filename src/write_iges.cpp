@@ -8,9 +8,9 @@ namespace iges
 	IGESNurbs::IGESNurbs()
 	{
 		_surf = make_unique<DLL_IGES_ENTITY_128>(_model, true);
-		//_space_bound	= make_unique<DLL_IGES_ENTITY_102>(_model, true);
+		_space_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
 		_param_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
-		//_surface_bound	= make_unique<DLL_IGES_ENTITY_142>(_model, true);
+		_surface_bound	= make_unique<DLL_IGES_ENTITY_142>(_model, true);
 		//_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(_model, true);
 	}
 
@@ -95,6 +95,9 @@ namespace iges
 		}
 	}
 
+	void IGESNurbs::_define_surf_boundary()
+	{
+	}
 
 	//write model to iges file
 	void IGESNurbs::write(const char* filename)

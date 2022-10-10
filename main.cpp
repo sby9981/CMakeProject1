@@ -39,9 +39,9 @@ int main()
 	iges::BSplineSurface b_surface =
 		iges::BSplineSurface(3, 3, 35, 11, knots_u, knots_v, control_pts);
 	iges::BSplineSurface b_surface1, b_surface2;
-	iges::subdivide_along_param_line(b_surface, 1, 0.5, b_surface1, b_surface2);
+	iges::subdivide_along_param_line(b_surface, 1, 0.502817, b_surface1, b_surface2);
 	iges::IGESNurbs model = iges::IGESNurbs();
-	model.set_param_bound(0, 0.5, 0, 1);
+	model.set_param_bound(0, 0.502817, 0, 1);
 	model.set_surface(b_surface1);
 	model.set_space_bound();
 

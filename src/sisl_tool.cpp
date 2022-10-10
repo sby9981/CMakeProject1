@@ -17,7 +17,7 @@ namespace iges
 		knots.resize(s->ik + s->in);
 		copy(s->et, s->et + knots.size(), knots.begin());
 
-		ctr_pnts.resize(s->in);
+		ctr_pnts.resize(s->in * 3);
 		copy(s->ecoef, s->ecoef + ctr_pnts.size(), ctr_pnts.begin());
 	}
 
