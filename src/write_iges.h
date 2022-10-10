@@ -11,21 +11,7 @@
 namespace iges
 {
 	using namespace std;
-	//struct Point3
-	//{
-	//	double x;
-	//	double y;
-	//	double z;
-
-	//	Point3(double _x, double _y, double _z)
-	//		: x(_x), y(_y), z(_z)
-	//	{}
-
-	//	friend istream& operator>>(istream& in, Point3& p) {
-	//		in >> p.x >> p.y >> p.z;
-	//		return in;
-	//	}
-	//};
+	using IGESModel = DLL_IGES;
 
 
 	class IGESNurbs
@@ -33,27 +19,38 @@ namespace iges
 	public:
 		BSplineSurface surface;
 
-		IGESNurbs();
-		IGESNurbs(BSplineSurface&);
-
-		void set_color(double, double, double);
+		IGESNurbs() = delete;
+		IGESNurbs(shared_ptr<DLL_IGES>);
+		IGESNurbs(shared_ptr<DLL_IGES>, BSplineSurface&);
 
 		//设置曲面在两个参数方向的参数范围 u0 to u1, v0 to v1
+		//必须先进行这一步再设置曲面
 		void set_param_bound(double u0, double u1, double v0, double v1);
 
+		//同时更新surface和model
 		void set_surface(BSplineSurface&);
 		void set_surface(int degree_u, int degree_v, int u_num, int v_num,
 			vector<double>& knots_u, vector<double>& knots_v, vector<double>& ctr_pnts);
 
+		//在已有surface的情况下更新model
+		void upgrade_surface();
+
 		void set_space_bound(); //选取曲面的4条边界曲线
 
+		void set_color(double, double, double);
+		
+		// the last step before write to iges
+		// use the compound curve to define a surface boundary in model space
+		// create the Trimmed Parametric Surface (TPS)
+		void create();
 
 		void write(const char*);
 		void write(const string&);
 
 	private:
 		// libIGES中的各种类型，用于转存IGS文件
-		DLL_IGES 								_model;
+		//DLL_IGES 								_model;
+		shared_ptr < DLL_IGES >					_model;
 		unique_ptr < DLL_IGES_ENTITY_128 >		_surf;
 		unique_ptr < DLL_IGES_ENTITY_102 >		_space_bound;
 		unique_ptr < DLL_IGES_ENTITY_102 >		_param_bound;
@@ -79,8 +76,13 @@ namespace iges
 		// use the compound curve to define a surface boundary in model space 
 		void _define_surf_boundary();
 
-		// create the Trimmed Parametric Surface (TPS
+		// create the Trimmed Parametric Surface (TPS)
 		void _create_TPS();
 	};
+
+	void write_iges(shared_ptr<DLL_IGES>, const char*);
+	void write_iges(shared_ptr<DLL_IGES>, const string&);
+
+	void write_ruled_surface_iges(BSplineSurface&, int, const string&);
 
 }

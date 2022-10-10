@@ -38,17 +38,20 @@ int main()
 
 	iges::BSplineSurface b_surface =
 		iges::BSplineSurface(3, 3, 35, 11, knots_u, knots_v, control_pts);
-	iges::BSplineSurface b_surface1, b_surface2;
-	iges::subdivide_along_param_line(b_surface, 1, 0.502817, b_surface1, b_surface2);
+	//iges::BSplineSurface b_surface1, b_surface2;
+	//iges::subdivide_along_param_line(b_surface, 1, 0.502817, b_surface1, b_surface2);
 
-	iges::IGESNurbs model = iges::IGESNurbs();
-	model.set_color(0, 80, 0);
-	model.set_param_bound(0, 0.502817, 0, 1);
-	model.set_surface(b_surface1);
-	model.set_space_bound();
-	
+	//auto iges_model = make_shared<iges::IGESModel>();
+	//iges::IGESNurbs nurbs = iges::IGESNurbs(iges_model);
+	//nurbs.set_color(0, 80, 0);
+	//nurbs.set_param_bound(0, 0.502817, 0, 1);
+	//nurbs.set_surface(b_surface1);
+	//nurbs.set_space_bound();
+	//
 
-	model.write(string(IGESDir) + string("1.IGS"));
+	//nurbs.write(string(IGESDir) + string("1.IGS"));
+
+	iges::write_ruled_surface_iges(b_surface, 1, string(IGESDir) + string("2.IGS"));
 
 
 	cout << "OK" << endl;

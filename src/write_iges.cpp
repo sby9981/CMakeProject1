@@ -5,18 +5,25 @@ namespace iges
 	using namespace std;
 
 
-	IGESNurbs::IGESNurbs()
+	IGESNurbs::IGESNurbs(shared_ptr<DLL_IGES> model)
 	{
-		_surf = make_unique<DLL_IGES_ENTITY_128>(_model, true);
-		_space_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
-		_param_bound = make_unique<DLL_IGES_ENTITY_102>(_model, true);
-		_surface_bound = make_unique<DLL_IGES_ENTITY_142>(_model, true);
-		_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(_model, true);
+		_model = model;
+		_surf = make_unique<DLL_IGES_ENTITY_128>(*_model, true);
+		_space_bound = make_unique<DLL_IGES_ENTITY_102>(*_model, true);
+		_param_bound = make_unique<DLL_IGES_ENTITY_102>(*_model, true);
+		_surface_bound = make_unique<DLL_IGES_ENTITY_142>(*_model, true);
+		_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(*_model, true);
 	}
 
-	IGESNurbs::IGESNurbs(BSplineSurface& b)
+	IGESNurbs::IGESNurbs(shared_ptr<DLL_IGES> model, BSplineSurface& b)
 	{
-		IGESNurbs();
+		_model = model;
+		_surf = make_unique<DLL_IGES_ENTITY_128>(*_model, true);
+		_space_bound = make_unique<DLL_IGES_ENTITY_102>(*_model, true);
+		_param_bound = make_unique<DLL_IGES_ENTITY_102>(*_model, true);
+		_surface_bound = make_unique<DLL_IGES_ENTITY_142>(*_model, true);
+		_trimmed_surface = make_unique<DLL_IGES_ENTITY_144>(*_model, true);
+
 		surface = b;
 	}
 
@@ -38,7 +45,7 @@ namespace iges
 								   { u0, v1, 0., u0, v0, 0. } };
 
 		for (int i = 0; i < 4; i++) {
-			DLL_IGES_ENTITY_126 line(_model, true);
+			DLL_IGES_ENTITY_126 line(*_model, true);
 			line.SetNURBSData(2, 2, line_knots, line_cpts[i], false, 0., 1.);
 			_param_bound->AddSegment(line);
 		}
@@ -72,6 +79,17 @@ namespace iges
 			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1);
 	}
 
+	void IGESNurbs::upgrade_surface()
+	{
+		// 根据现有的surface更新model
+		_surf->SetNURBSData(
+			surface.u_num, surface.v_num, surface.degree_u + 1,
+			surface.degree_v + 1, surface.knots_u.data(), surface.knots_v.data(),
+			surface.ctr_pnts.data(), false, false, false,
+			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1
+		);
+	}
+
 	void IGESNurbs::set_space_bound()
 	{
 		BSplineCurve curve;
@@ -82,7 +100,7 @@ namespace iges
 
 		for (int i = 0; i < 4; i++) {
 			pick_constant_param_curve(surface, param_direction[i], param_val[i], curve);
-			DLL_IGES_ENTITY_126 boundary(_model, true);
+			DLL_IGES_ENTITY_126 boundary(*_model, true);
 			if (param_direction[i] == 1) {
 				boundary.SetNURBSData(curve.num, curve.degree + 1, curve.knots.data(),
 					curve.ctr_pnts.data(), false, _param_limit.v0, _param_limit.v1);
@@ -106,26 +124,30 @@ namespace iges
 
 	void IGESNurbs::_create_TPS()
 	{
-		DLL_IGES_ENTITY_314 color(_model, true);
+		DLL_IGES_ENTITY_314 color(*_model, true);
 		color.SetColor(_color.r, _color.g, _color.b);
 		_trimmed_surface->SetSurface(*_surf);
 		_trimmed_surface->SetBoundCurve(*_surface_bound);
 		_trimmed_surface->SetColor(color);
 	}
 
-	//write model to iges file
-	void IGESNurbs::write(const char* filename)
+	void IGESNurbs::create()
 	{
 		_define_surf_boundary();
 		_create_TPS();
-		_model.Write(filename, true);
+	}
+
+	//write model to iges file
+	void IGESNurbs::write(const char* filename)
+	{
+		create();
+		_model->Write(filename, true);
 	}
 
 	void IGESNurbs::write(const string& filename)
 	{
-		_define_surf_boundary();
-		_create_TPS();
-		_model.Write(filename.c_str(), true);
+		create();
+		_model->Write(filename.c_str(), true);
 	}
 
 
@@ -154,5 +176,66 @@ namespace iges
 		this->r = r;
 		this->g = g;
 		this->b = b;
+	}
+
+	void write_iges(shared_ptr<DLL_IGES> model, const char* filename)
+	{
+		model->Write(filename, true);
+	}
+	void write_iges(shared_ptr<DLL_IGES> model, const string& filename)
+	{
+		model->Write(filename.c_str(), true);
+	}
+
+	/*
+	* 将直纹面写为IGES文件
+	* IGES不能接受一个桶面，需要将直纹面先分为两个面再写入
+	* direction : 参数方向
+	*			=1 ：曲面在u方向构成闭环，v方向为母线方向
+	*			=2 ：曲面在v方向构成闭环，u方向为母线方向
+	*/
+	void write_ruled_surface_iges(BSplineSurface& surf, 
+		int direction, const string& filename)
+	{
+		if (direction != 1 && direction != 2) {
+			cerr << "Wrong param direction!" << endl;
+			return;
+		}
+
+		//沿参数0.5将曲面分割
+		double param_val = 0.5;
+
+		//创建用于存储iges的model
+		auto iges_model = make_shared<iges::IGESModel>();
+
+		//创建两个子曲面
+		IGESNurbs sub_surf1(iges_model), sub_surf2(iges_model);
+
+		if (direction == 1) {
+			sub_surf1.set_param_bound(0., param_val, 0., 1.);
+			sub_surf2.set_param_bound(param_val, 1., 0., 1.);
+		}
+		else {
+			sub_surf1.set_param_bound(0., 1., 0., param_val);
+			sub_surf2.set_param_bound(0., 1., param_val, 1.);
+		}
+
+		//沿参数u=0.5将曲面分为两个，并存入两个子曲面
+		subdivide_along_param_line(surf, direction,
+			param_val, sub_surf1.surface, sub_surf2.surface);
+		
+		sub_surf1.upgrade_surface();
+		sub_surf2.upgrade_surface();
+
+		sub_surf1.set_color(0, 80, 0);
+		sub_surf2.set_color(80, 0, 0);
+
+		sub_surf1.set_space_bound();
+		sub_surf2.set_space_bound();
+		
+		sub_surf1.create();
+		sub_surf2.create();
+
+		write_iges(iges_model, filename);
 	}
 }
