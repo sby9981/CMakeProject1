@@ -9,7 +9,11 @@ project (hello)
 set(NURBS_DIR "src")
 set(WRITE_IGES 
 		"${NURBS_DIR}/write_iges.h" "${NURBS_DIR}/write_iges.cpp"
-		"${NURBS_DIR}/sisl_tool.h" "${NURBS_DIR}/sisl_tool.cpp")
+		"${NURBS_DIR}/sisl_tool.h" "${NURBS_DIR}/sisl_tool.cpp"
+)
+
+#add_library(write_iges_static STATIC ${WRITE_IGES})
+
 add_executable (hello "CMakeProject1.cpp" "CMakeProject1.h"  "main.cpp" ${WRITE_IGES})
 target_include_directories(hello PUBLIC ${NURBS_DIR})
 
@@ -47,3 +51,4 @@ else()
 endif()
 # TODO: Add tests and install targets if needed.
 #aaa
+

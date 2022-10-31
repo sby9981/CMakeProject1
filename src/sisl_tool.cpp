@@ -26,6 +26,26 @@ namespace iges
 		return newCurve(num, degree + 1, knots.data(), ctr_pnts.data(), 1, 3, 1);
 	}
 
+	void BSplineSurface::M_ParameterLimit::set(double u0, double u1, double v0, double v1)
+	{
+		this->u0 = u0;
+		this->u1 = u1;
+		this->v0 = v0;
+		this->v1 = v1;
+	}
+
+	bool BSplineSurface::M_ParameterLimit::ifValid()
+	{
+		if (0.0 <= u0 && u0 <= 1.0 && 0.0 <= u1 && u1 <= 1.0 &&
+			0.0 <= v0 && v0 <= 1.0 && 0.0 <= v1 && v1 <= 1.0 &&
+			u0 != u1 && v0 != v1) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	BSplineSurface::BSplineSurface(SISLSurf* s)
 	{
 		reset(s);
@@ -78,6 +98,136 @@ namespace iges
 		return newSurf(u_num, v_num, degree_u + 1, degree_v + 1, knots_u.data(),
 			knots_v.data(), ctr_pnts.data(), 1, 3, 1);
 		//need freeSurf(SISLSurf*) later
+	}
+
+	void BSplineSurface::out(ofstream& out)
+	{
+		out << degree_u << ' ' << degree_v << ' '
+			<< u_num << ' ' << v_num << "\n";
+		for (auto u : knots_u) {
+			out << u << '\n';
+		}
+
+		for (auto v : knots_v) {
+			out << v << '\n';
+		}
+
+		for (int i = 0; i < u_num * v_num; i++) {
+			for (int j = 0; j < 3; j++) {
+				out << ctr_pnts[3 * i + j] << ' ';
+			}
+			out << '\n';
+		}
+	}
+
+	void BSplineSurface::in(ifstream& in)
+	{
+		int u_knots_size, v_knots_size;
+		in >> degree_u >> degree_v >> u_num >> v_num;
+
+		u_knots_size = degree_u + u_num + 1;
+		v_knots_size = degree_v + v_num + 1;
+
+		//double temp_read;
+		knots_u.resize(u_knots_size);
+		for (int i = 0; i < u_knots_size; i++) {
+			in >> knots_u[i];
+		}
+
+		knots_v.resize(v_knots_size);
+		for (int i = 0; i < v_knots_size; i++) {
+			in >> knots_v[i];
+		}
+
+		ctr_pnts.resize(3 * u_num * v_num);
+		for (int i = 0; i < 3 * u_num * v_num; i++) {
+			in >> ctr_pnts[i];
+		}
+	}
+
+	/*
+	* 将BSplineSurface的信息按顺序写入txt
+	* 第一行：曲面个数 1
+	* 第二行：空行
+	* 第三行：u,v方向的次数、控制点数、节点向量长度，空格分隔
+	*		u节点向量, 一行一个值
+	*		v节点向量, 一行一个值
+	*		控制点位置，每行为一个点的xyz
+	*/
+	void write_single_surface(BSplineSurface& b_surface, const char* filename)
+	{
+		ofstream out;
+		out.open(filename, ios::out);
+		out << 1 << "\n";
+		out.precision(15);
+		out.setf(ios::fixed);
+		b_surface.out(out);
+		out.close();
+	}
+
+	void write_single_surface(BSplineSurface& b_surface, const string filename)
+	{
+		write_single_surface( b_surface, filename.c_str());
+	}
+
+	void read_single_surface(BSplineSurface& b_surface, const char* filename)
+	{
+		ifstream in;
+		in.open(filename, ios::in);
+		int n;
+		in >> n;
+		b_surface.in(in);
+		in.close();
+
+	}
+
+	void read_single_surface(BSplineSurface& b_surface, const string filename)
+	{
+		read_single_surface(b_surface, filename.c_str());
+	}
+
+	void read_surfaces(vector<iges::BSplineSurface>& surfaces, const char* filename)
+	{
+		ifstream in;
+		in.open(filename, ios::in);
+
+		if (!in.is_open()) {
+			return;
+		}
+
+		int n;
+		in >> n; //曲面数量
+
+		for (int i = 0; i < n; i++) {
+			BSplineSurface new_surf;
+			new_surf.in(in);
+			surfaces.emplace_back(new_surf);
+		}
+		in.close();
+	}
+
+	void read_surfaces(vector<BSplineSurface>& surfaces, const string filename)
+	{
+		read_surfaces(surfaces, filename.c_str());
+	}
+
+	void write_surfaces(vector<BSplineSurface>& surfaces, const char* filename)
+	{
+		ofstream out;
+		out.open(filename, ios::out);
+		out << surfaces.size() << "\n";
+
+		out.precision(15);
+		out.setf(ios::fixed);
+		for (int i = 0; i < surfaces.size(); i++) {
+			surfaces[i].out(out);
+		}
+		out.close();
+	}
+
+	void write_surfaces(vector<BSplineSurface>& surfaces, const string filename)
+	{
+		write_surfaces(surfaces, filename.c_str());
 	}
 
 	/*	将曲面沿一条参数线分割

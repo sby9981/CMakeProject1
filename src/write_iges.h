@@ -14,14 +14,14 @@ namespace iges
 	using IGESModel = DLL_IGES;
 
 
-	class IGESNurbs
+	class SWNurbs
 	{
 	public:
 		BSplineSurface surface;
 
-		IGESNurbs() = delete;
-		IGESNurbs(shared_ptr<DLL_IGES>);
-		IGESNurbs(shared_ptr<DLL_IGES>, BSplineSurface&);
+		SWNurbs() = delete;
+		SWNurbs(shared_ptr<DLL_IGES>);
+		SWNurbs(shared_ptr<DLL_IGES>, BSplineSurface&);
 
 		//设置曲面在两个参数方向的参数范围 u0 to u1, v0 to v1
 		//必须先进行这一步再设置曲面
@@ -38,8 +38,8 @@ namespace iges
 		void set_space_bound(); //选取曲面的4条边界曲线
 
 		void set_color(double, double, double);
-		
-		// the last step before write to iges
+
+		// the last step before out to iges
 		// use the compound curve to define a surface boundary in model space
 		// create the Trimmed Parametric Surface (TPS)
 		void create();
@@ -80,9 +80,17 @@ namespace iges
 		void _create_TPS();
 	};
 
-	void write_iges(shared_ptr<DLL_IGES>, const char*);
-	void write_iges(shared_ptr<DLL_IGES>, const string&);
+	void write_iges(shared_ptr<IGESModel>, const char*);
+	void write_iges(shared_ptr<IGESModel>, const string&);
 
-	void write_ruled_surface_iges(BSplineSurface&, int, const string&);
+	//将多个面写入IGES文件，不能为闭曲面
+	void write_surfaces_iges(vector<BSplineSurface>&, const char*);
+	void write_surfaces_iges(vector<BSplineSurface>&, const string&);
+
+	//将直纹面写入IGES文件
+	void write_ruled_surface_iges(BSplineSurface&, int, double, const string&);
+
+	//将直纹面写为IGES文件，按sw格式带有边界
+	void write_sw_ruled_surface_iges(BSplineSurface&, int, double, const string&);
 
 }
