@@ -71,17 +71,18 @@ namespace iges
 		void _create_TPS();
 	};
 
-	void write_iges(shared_ptr<IGESModel>, const char*);
-	void write_iges(shared_ptr<IGESModel>, const string&);
+	//返回是否成果存储
+	bool write_iges(shared_ptr<IGESModel>, const char*);
+	bool write_iges(shared_ptr<IGESModel>, const string&);
 
 	//将多个面写入IGES文件，不能为闭曲面
-	void write_surfaces_iges(vector<BSplineSurface>&, const char*);
-	void write_surfaces_iges(vector<BSplineSurface>&, const string&);
+	bool write_surfaces_iges(vector<BSplineSurface>&, const char*);
+	bool write_surfaces_iges(vector<BSplineSurface>&, const string&);
 
 	//将直纹面写入IGES文件
-	void write_ruled_surface_iges(BSplineSurface&, int, double, const string&);
+	bool write_ruled_surface_iges(BSplineSurface&, int, double, const string&);
 
 	//将直纹面写为IGES文件，按sw格式带有边界
-	void write_sw_ruled_surface_iges(BSplineSurface&, int, double, const string&);
+	bool write_sw_ruled_surface_iges(BSplineSurface&, int, double, const string&);
 
 }

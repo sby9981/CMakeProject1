@@ -155,60 +155,41 @@ namespace iges
 		_model->Write(filename.c_str(), true);
 	}
 
-
-	//void SWNurbs::M_ParameterLimit::set(double u0, double u1, double v0, double v1)
-	//{
-	//	this->u0 = u0;
-	//	this->u1 = u1;
-	//	this->v0 = v0;
-	//	this->v1 = v1;
-	//}
-
-	//bool SWNurbs::M_ParameterLimit::ifValid()
-	//{
-	//	if (0.0 <= u0 && u0 <= 1.0 && 0.0 <= u1 && u1 <= 1.0 &&
-	//		0.0 <= v0 && v0 <= 1.0 && 0.0 <= v1 && v1 <= 1.0 &&
-	//		u0 != u1 && v0 != v1) {
-	//		return true;
-	//	}
-	//	else {
-	//		return false;
-	//	}
-	//}
-
 	void SWNurbs::M_Color::set(double r, double g, double b)
 	{
 		this->r = r;
 		this->g = g;
 		this->b = b;
 	}
-
-	void write_iges(shared_ptr<DLL_IGES> model, const char* filename)
+	
+	bool write_iges(shared_ptr<DLL_IGES> model, const char* filename)
 	{
-		model->Write(filename, true);
+		return model->Write(filename, true);
 	}
-	void write_iges(shared_ptr<DLL_IGES> model, const string& filename)
+	bool write_iges(shared_ptr<DLL_IGES> model, const string& filename)
 	{
-		model->Write(filename.c_str(), true);
+		return model->Write(filename.c_str(), true);
 	}
 
-	void write_surfaces_iges(vector<BSplineSurface>& surfaces, const char* filename)
+	bool write_surfaces_iges(vector<BSplineSurface>& surfaces, const char* filename)
 	{
 		auto model = make_shared<IGESModel>();
 		for (int i = 0; i < surfaces.size(); i++) {
 			DLL_IGES_ENTITY_128 sub_surf(*model, true);
-			sub_surf.SetNURBSData(surfaces[i].u_num, surfaces[i].v_num, 
-				surfaces[i].degree_u + 1, surfaces[i].degree_v + 1, 
+			sub_surf.SetNURBSData(surfaces[i].u_num, surfaces[i].v_num,
+				surfaces[i].degree_u + 1, surfaces[i].degree_v + 1,
 				surfaces[i].knots_u.data(), surfaces[i].knots_v.data(),
-				surfaces[i].ctr_pnts.data(), false, false, false, 0, 1, 0, 1);
+				surfaces[i].ctr_pnts.data(), false, false, false,
+				surfaces[i].param_limit.u0, surfaces[i].param_limit.u1,
+				surfaces[i].param_limit.v0, surfaces[i].param_limit.v1);
 		}
 
-		write_iges(model, filename);
+		return write_iges(model, filename);
 	}
 
-	void write_surfaces_iges(vector<BSplineSurface>& surfaces, const string& filename)
+	bool write_surfaces_iges(vector<BSplineSurface>& surfaces, const string& filename)
 	{
-		write_surfaces_iges(surfaces, filename.c_str());
+		return write_surfaces_iges(surfaces, filename.c_str());
 	}
 
 	/*
@@ -220,12 +201,12 @@ namespace iges
 	*		 =2 ：曲面在v方向构成闭环，u方向为母线方向
 	* param_val:沿参数param_val将曲面分割
 	*/
-	void write_ruled_surface_iges(BSplineSurface& surf,
+	bool write_ruled_surface_iges(BSplineSurface& surf,
 		int direction, double param_val, const string& filename)
 	{
 		if (direction != 1 && direction != 2) {
 			cerr << "Wrong param direction!" << endl;
-			return;
+			return false;
 		}
 
 		//创建用于存储iges的model
@@ -240,29 +221,17 @@ namespace iges
 		//沿参数=param_val将曲面分为两个，并存入两个子曲面
 		subdivide_along_param_line(surf, direction, param_val, nurbs1, nurbs2);
 
-		if (direction == 1)
-		{
-			sub_surf1.SetNURBSData(nurbs1.u_num, nurbs1.v_num, nurbs1.degree_u + 1,
-				nurbs1.degree_v + 1, nurbs1.knots_u.data(), nurbs1.knots_v.data(),
-				nurbs1.ctr_pnts.data(), false, false, false, 0, param_val, 0, 1);
+		sub_surf1.SetNURBSData(nurbs1.u_num, nurbs1.v_num, nurbs1.degree_u + 1,
+			nurbs1.degree_v + 1, nurbs1.knots_u.data(), nurbs1.knots_v.data(),
+			nurbs1.ctr_pnts.data(), false, false, false, nurbs1.param_limit.u0,
+			nurbs1.param_limit.u1, nurbs1.param_limit.v0, nurbs1.param_limit.v1);
 
-			sub_surf2.SetNURBSData(nurbs2.u_num, nurbs2.v_num, nurbs2.degree_u + 1,
-				nurbs2.degree_v + 1, nurbs2.knots_u.data(), nurbs2.knots_v.data(),
-				nurbs2.ctr_pnts.data(), false, false, false, param_val, 1, 0, 1);
-		}
-		else
-		{
-			sub_surf1.SetNURBSData(nurbs1.u_num, nurbs1.v_num, nurbs1.degree_u + 1,
-				nurbs1.degree_v + 1, nurbs1.knots_u.data(), nurbs1.knots_v.data(),
-				nurbs1.ctr_pnts.data(), false, false, false, 0, 1, 0, param_val);
+		sub_surf2.SetNURBSData(nurbs2.u_num, nurbs2.v_num, nurbs2.degree_u + 1,
+			nurbs2.degree_v + 1, nurbs2.knots_u.data(), nurbs2.knots_v.data(),
+			nurbs2.ctr_pnts.data(), false, false, false, nurbs2.param_limit.u0,
+			nurbs2.param_limit.u1, nurbs2.param_limit.v0, nurbs2.param_limit.v1);
 
-			sub_surf2.SetNURBSData(nurbs2.u_num, nurbs2.v_num, nurbs2.degree_u + 1,
-				nurbs2.degree_v + 1, nurbs2.knots_u.data(), nurbs2.knots_v.data(),
-				nurbs2.ctr_pnts.data(), false, false, false, 0, 1, param_val, 1);
-		}
-		
-
-		write_iges(iges_model, filename);
+		return write_iges(iges_model, filename);
 	}
 
 	/*
@@ -274,12 +243,12 @@ namespace iges
 	*			=2 ：曲面在v方向构成闭环，u方向为母线方向
 	* param_val:沿参数param_val将曲面分割
 	*/
-	void write_sw_ruled_surface_iges(BSplineSurface& surf,
+	bool write_sw_ruled_surface_iges(BSplineSurface& surf,
 		int direction,double param_val, const string& filename)
 	{
 		if (direction != 1 && direction != 2) {
 			cerr << "Wrong param direction!" << endl;
-			return;
+			return false;
 		}
 
 		//创建用于存储iges的model
@@ -314,6 +283,6 @@ namespace iges
 		sub_surf1.create();
 		sub_surf2.create();
 
-		write_iges(iges_model, filename);
+		return write_iges(iges_model, filename);
 	}
 }

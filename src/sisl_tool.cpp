@@ -150,6 +150,8 @@ namespace iges
 			in >> knots_v[i];
 		}
 
+		param_limit.set(knots_u[0], knots_u.back(), knots_v[0], knots_v.back());
+
 		ctr_pnts.resize(3 * u_num * v_num);
 		for (int i = 0; i < 3 * u_num * v_num; i++) {
 			in >> ctr_pnts[i];
@@ -197,17 +199,21 @@ namespace iges
 		read_single_surface(b_surface, filename.c_str());
 	}
 
-	void read_surfaces(vector<iges::BSplineSurface>& surfaces, const char* filename)
+	int read_surfaces(vector<BSplineSurface>& surfaces, const char* filename)
 	{
 		ifstream in;
 		in.open(filename, ios::in);
 
 		if (!in.is_open()) {
-			return;
+			return -1;
 		}
 
 		int n;
 		in >> n; //ÇúÃæÊýÁ¿
+		if (n <= 0) {
+			in.close();
+			return n;
+		}
 
 		for (int i = 0; i < n; i++) {
 			BSplineSurface new_surf;
@@ -215,11 +221,12 @@ namespace iges
 			surfaces.emplace_back(new_surf);
 		}
 		in.close();
+		return n;
 	}
 
-	void read_surfaces(vector<BSplineSurface>& surfaces, const string filename)
+	int read_surfaces(vector<BSplineSurface>& surfaces, const string filename)
 	{
-		read_surfaces(surfaces, filename.c_str());
+		return read_surfaces(surfaces, filename.c_str());
 	}
 
 	void write_surfaces(vector<BSplineSurface>& surfaces, const char* filename)
@@ -262,6 +269,14 @@ namespace iges
 		}
 		new_surf1.reset(s1);
 		new_surf2.reset(s2);
+		if (param_direction == 1) {
+			new_surf1.param_limit.set(0, param_val, 0, 1);
+			new_surf2.param_limit.set(param_val, 1, 0, 1);
+		}
+		else {
+			new_surf1.param_limit.set(0, 1, 0, param_val);
+			new_surf2.param_limit.set(0, 1, param_val, 1);
+		}
 		freeSurf(s0);
 		freeSurf(s1);
 		freeSurf(s2);

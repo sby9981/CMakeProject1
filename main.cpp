@@ -45,15 +45,18 @@ int main()
 	//iges::write_single_surface(b_surface, string(TempDir) + string("b_surface.txt"));
 	//iges::read_single_surface(b_surface, string(TempDir) + string("b_surface.txt"));
 
-	//vector<iges::BSplineSurface> surfaces;
-	//iges::read_surfaces(surfaces, string(TempDir) + string("123.txt"));
-	//iges::write_surfaces(surfaces, string(TempDir) + string("1234.txt"));
-	//iges::write_surfaces_iges(surfaces, string(TempDir) + string("1234.IGS"));
+	vector<iges::BSplineSurface> surfaces;
+	//int n;
+	//cout << iges::read_surfaces(surfaces, string(TempDir) + string("CAM0.txt"));
+	////iges::write_surfaces(surfaces, string(TempDir) + string("CAM01.txt"));
+	//iges::write_surfaces_iges(surfaces, string(TempDir) + string("CAM0.IGS"));
 
-	//auto iges_model = make_shared<iges::IGESModel>();
-	//iges_model->Read((string(IGESDir) + string("temp.IGS")).c_str());
-	//IGES* ip = iges_model->GetRawPtr();
-	
+	iges::BSplineSurface nurbs1, nurbs2;
+	iges::subdivide_along_param_line(b_surface, 1, 0.5, nurbs1, nurbs2);
+	surfaces.emplace_back(nurbs1);
+	surfaces.emplace_back(nurbs2);
+	iges::write_surfaces(surfaces, string(TempDir) + string("CAM01.txt"));
+
 	//DLL_IGES_ENTITY_128 nurbs(*iges_model, true);
 	//nurbs.SetNURBSData(b_surface.u_num, b_surface.v_num, b_surface.degree_u + 1,
 	//	b_surface.degree_v + 1, b_surface.knots_u.data(), b_surface.knots_v.data(),
