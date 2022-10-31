@@ -57,15 +57,6 @@ namespace iges
 		unique_ptr < DLL_IGES_ENTITY_142 >		_surface_bound;
 		unique_ptr < DLL_IGES_ENTITY_144 >		_trimmed_surface;
 
-		struct M_ParameterLimit {
-			//曲面在两个参数方向的参数范围 u0 - u1, v0 - v1
-			double u0, u1, v0, v1;
-
-			explicit M_ParameterLimit() : u0(0), u1(0), v0(0), v1(0) {}
-			void set(double u0, double u1, double v0, double v1);
-			bool ifValid();
-		}_param_limit;
-
 		struct M_Color {
 			double r, g, b;
 

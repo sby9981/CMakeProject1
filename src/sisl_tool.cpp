@@ -26,12 +26,23 @@ namespace iges
 		return newCurve(num, degree + 1, knots.data(), ctr_pnts.data(), 1, 3, 1);
 	}
 
-	void BSplineSurface::M_ParameterLimit::set(double u0, double u1, double v0, double v1)
+	void BSplineSurface::M_ParameterLimit::
+		set(double u0, double u1, double v0, double v1)
 	{
 		this->u0 = u0;
 		this->u1 = u1;
 		this->v0 = v0;
 		this->v1 = v1;
+	}
+
+	BSplineSurface::M_ParameterLimit& BSplineSurface::M_ParameterLimit::
+		operator=(const BSplineSurface::M_ParameterLimit& other)
+	{
+		this->u0 = other.u0;
+		this->u1 = other.u1;
+		this->v0 = other.v0;
+		this->v1 = other.v1;
+		return *this;
 	}
 
 	bool BSplineSurface::M_ParameterLimit::ifValid()

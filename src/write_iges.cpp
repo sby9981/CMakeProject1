@@ -37,7 +37,7 @@ namespace iges
 		//参数域，由4条1次B样条（直线）构成 degree=1 order=2, 两个控制点
 		// u0, u1, v0, v1 为参数范围，都在0-1范围内
 		//(u0, v0, 0) - > (u1, v0, 0) - > (u1, v1, 0) - > (u0, v1, 0) - > (u0, v0, 0)
-		_param_limit.set(u0, u1, v0, v1);
+		surface.param_limit.set(u0, u1, v0, v1);
 		double line_knots[] = { 0.,0.,1.,1. };
 		double line_cpts[4][6] = { { u0, v0, 0., u1, v0, 0. },
 								   { u1, v0, 0., u1, v1, 0. },
@@ -57,13 +57,14 @@ namespace iges
 
 		// DLL_IGES_ENTITY_128输入参数为阶数 order=degree + 1
 		// u0, u1, v0, v1 为参数范围，都在0-1范围内
-		if (!_param_limit.ifValid()) {
+		if (!surface.param_limit.ifValid()) {
 			cerr << "Wrong parameter feild! Use set_param_bound first!" << endl;
 		}
 		// for IGES
 		_surf->SetNURBSData(b.u_num, b.v_num, b.degree_u + 1, b.degree_v + 1,
 			b.knots_u.data(), b.knots_v.data(), b.ctr_pnts.data(), false, false, false,
-			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1);
+			surface.param_limit.u0, surface.param_limit.u1, 
+			surface.param_limit.v0, surface.param_limit.v1);
 	}
 
 	void SWNurbs::set_surface(int degree_u, int degree_v, int u_num, int v_num,
@@ -71,12 +72,13 @@ namespace iges
 	{
 		surface.reset(degree_u, degree_v, u_num, v_num, knots_u, knots_v, ctr_pnts);
 
-		if (!_param_limit.ifValid()) {
+		if (!surface.param_limit.ifValid()) {
 			cerr << "Wrong parameter feild! Use set_param_bound first!" << endl;
 		}
 		_surf->SetNURBSData(u_num, v_num, degree_u + 1, degree_v + 1,
 			knots_u.data(), knots_v.data(), ctr_pnts.data(), false, false, false,
-			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1);
+			surface.param_limit.u0, surface.param_limit.u1, 
+			surface.param_limit.v0, surface.param_limit.v1);
 	}
 
 	void SWNurbs::upgrade_surface()
@@ -86,7 +88,8 @@ namespace iges
 			surface.u_num, surface.v_num, surface.degree_u + 1,
 			surface.degree_v + 1, surface.knots_u.data(), surface.knots_v.data(),
 			surface.ctr_pnts.data(), false, false, false,
-			_param_limit.u0, _param_limit.u1, _param_limit.v0, _param_limit.v1
+			surface.param_limit.u0, surface.param_limit.u1, 
+			surface.param_limit.v0, surface.param_limit.v1
 		);
 	}
 
@@ -94,8 +97,8 @@ namespace iges
 	{
 		BSplineCurve curve;
 		int param_direction[] = { 1, 2, 1, 2 };
-		double param_val[] = { _param_limit.u0, _param_limit.v1,
-			_param_limit.u1, _param_limit.v0 };
+		double param_val[] = { surface.param_limit.u0, surface.param_limit.v1,
+			surface.param_limit.u1, surface.param_limit.v0 };
 		double start = 0., end = 1.; //曲线起止的参数位置
 
 		for (int i = 0; i < 4; i++) {
@@ -103,11 +106,13 @@ namespace iges
 			DLL_IGES_ENTITY_126 boundary(*_model, true);
 			if (param_direction[i] == 1) {
 				boundary.SetNURBSData(curve.num, curve.degree + 1, curve.knots.data(),
-					curve.ctr_pnts.data(), false, _param_limit.v0, _param_limit.v1);
+					curve.ctr_pnts.data(), false, 
+					surface.param_limit.v0, surface.param_limit.v1);
 			}
 			else {
 				boundary.SetNURBSData(curve.num, curve.degree + 1, curve.knots.data(),
-					curve.ctr_pnts.data(), false, _param_limit.u0, _param_limit.u1);
+					curve.ctr_pnts.data(), false, 
+					surface.param_limit.u0, surface.param_limit.u1);
 			}
 			_space_bound->AddSegment(boundary);
 		}
@@ -151,25 +156,25 @@ namespace iges
 	}
 
 
-	void SWNurbs::M_ParameterLimit::set(double u0, double u1, double v0, double v1)
-	{
-		this->u0 = u0;
-		this->u1 = u1;
-		this->v0 = v0;
-		this->v1 = v1;
-	}
+	//void SWNurbs::M_ParameterLimit::set(double u0, double u1, double v0, double v1)
+	//{
+	//	this->u0 = u0;
+	//	this->u1 = u1;
+	//	this->v0 = v0;
+	//	this->v1 = v1;
+	//}
 
-	bool SWNurbs::M_ParameterLimit::ifValid()
-	{
-		if (0.0 <= u0 && u0 <= 1.0 && 0.0 <= u1 && u1 <= 1.0 &&
-			0.0 <= v0 && v0 <= 1.0 && 0.0 <= v1 && v1 <= 1.0 &&
-			u0 != u1 && v0 != v1) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+	//bool SWNurbs::M_ParameterLimit::ifValid()
+	//{
+	//	if (0.0 <= u0 && u0 <= 1.0 && 0.0 <= u1 && u1 <= 1.0 &&
+	//		0.0 <= v0 && v0 <= 1.0 && 0.0 <= v1 && v1 <= 1.0 &&
+	//		u0 != u1 && v0 != v1) {
+	//		return true;
+	//	}
+	//	else {
+	//		return false;
+	//	}
+	//}
 
 	void SWNurbs::M_Color::set(double r, double g, double b)
 	{

@@ -50,6 +50,7 @@ namespace iges
 
 			explicit M_ParameterLimit() : u0(0), u1(1), v0(0), v1(1) {}
 			void set(double u0, double u1, double v0, double v1);
+			M_ParameterLimit& operator=(const M_ParameterLimit& other);
 			bool ifValid();
 		}param_limit;
 
@@ -64,7 +65,8 @@ namespace iges
 
 		BSplineSurface(BSplineSurface& b)
 			: degree_u(b.degree_u), degree_v(b.degree_v), u_num(b.u_num), 
-			v_num(b.v_num), knots_u(b.knots_u), knots_v(b.knots_v), ctr_pnts(b.ctr_pnts)
+			param_limit(b.param_limit), v_num(b.v_num), knots_u(b.knots_u), 
+			knots_v(b.knots_v), ctr_pnts(b.ctr_pnts)
 		{}
 
 		BSplineSurface(int degree_u, int degree_v, int u_num, int v_num,

@@ -60,7 +60,7 @@ int main()
 	//	b_surface.ctr_pnts.data(), false, false, false, 0, 1, 0, 1);
 	//iges_model->Write((string(IGESDir) + string("4.IGS")).c_str(), true);
 
-	iges::write_ruled_surface_iges(b_surface, 1, 0.5, string(IGESDir) + string("temp.IGS"));
+	//iges::write_ruled_surface_iges(b_surface, 1, 0.5, string(IGESDir) + string("temp.IGS"));
 
 
 	cout << "OK" << endl;
