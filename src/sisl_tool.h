@@ -99,7 +99,7 @@ namespace iges
 	void write_single_surface(BSplineSurface&, const string);
 	void read_single_surface(BSplineSurface&, const char*);
 	void read_single_surface(BSplineSurface&, const string);
-	//读写 多个曲面到一个txt
+	//读写 多个曲面到一个txt，返回曲面个数
 	int read_surfaces(vector<BSplineSurface>&, const char*);
 	int read_surfaces(vector<BSplineSurface>&, const string);
 	void write_surfaces(vector<BSplineSurface>&, const char*);
