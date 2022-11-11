@@ -94,6 +94,17 @@ void subdivide_along_param_line(BSplineSurface& surf, int param_direction, doubl
 void subdivide_along_param_line(surf, 1, 0.5, new_surf1, new_surf2);
 ~~~
 
+需要txt的格式为
+
+~~~python
+0 1 0.5   # 0表示要切割， 1 0.5 表示沿u=0.5切
+3 3 35 11 # 同
+~~~
+
+
+
+
+
 
 
 ## IGES
